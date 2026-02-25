@@ -9,12 +9,13 @@ class Prodotto:
 
     def __init__(self, name: str, price: float, quantity: int, supplier = None):
         self.name = name
+        self._price = None
         self.price = price
         self.quantity = quantity
         self.supplier = supplier
 
     def valore_netto(self):
-        return self.price*self.quantity
+        return self._price*self.quantity
 
     def valore_lordo(self):
         netto = self.valore_netto()
@@ -29,6 +30,17 @@ class Prodotto:
     def applica_sconto(prezzo, percentuale):
         return prezzo*(1-percentuale)
 
+    @property
+    def price(self):    #equivalente al getter
+        return self._price
+
+    @price.setter   #possibile solo dopo aver definito un getter
+    def price(self, value):
+        if value < 0:
+            raise ValueError("Attenzione, prezzo non valido")
+            pass
+        self._price = value
+
 myproduct1 = Prodotto(name = "Laptop", price = 1200.0, quantity=12, supplier="ABC")
 
 print(f"Nome prodotto: {myproduct1.name} - prezzo: {myproduct1.price}")
@@ -40,20 +52,38 @@ print(f"Prezzo scontato di myproduct1 {Prodotto.applica_sconto(myproduct1.price,
 myproduct2 = Prodotto("Mouse", 10, 25, "CDE")
 print(f"Nome prodotto: {myproduct2.name} - prezzo: {myproduct2.price}")
 
+print(f"valore lordo di prodotto 1 {myproduct1.valore_lordo()}")
+Prodotto.aliquota_iva = 0.24
+print(f"Valore lordo di prodotto 1 {myproduct1.valore_lordo()}")
+
 #Scrivere una classe Cliente che abbia i campi "nome", "email", "categoria" ("Gold", "Silver", "Bronze").
 #vorremmo che questa classe avesse un metodo che chiamiamo "descrizione"
 # che deve restituire una stringa formattata ad esempio
 #"Cliente Fulvio Bianchi (Gold) - fulvio@google.com"
 
+#Si modifichi la classe Cliente in modo tale che la proprietà categoria sia protetta e che accetti solo
+# le categorie Gold, Silver, Bronze
 class Cliente:
     def __init__(self, nome, mail, categoria):
         self.nome = nome
         self.mail = mail
-        self.categoria = categoria
+        self._categoria = None
+        self._categoria = categoria
 
     def descrizione(self): #to_string
         # "Cliente Fulvio Bianchi (Gold) - fulvio@google.com"
         return f"Cliente {self.nome} ({self.categoria}) - {self.mail}"
+
+    @property
+    def categoria(self):
+        return self._categoria
+
+    @categoria.setter
+    def categoria(self, value):
+        if value != "Gold" or value != "Silver" or value != "Bronze":
+            raise ValueError("Categoria non valida, inserire solo Gold, Silver o Bronze")
+            pass
+        self._categoria = value
 
 c1 = Cliente("Mario Bianchi", "mario.bianchi@polito.it", "Gold")
 print(c1.descrizione())
