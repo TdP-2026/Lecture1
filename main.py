@@ -1,11 +1,8 @@
-# Scriviamo un codice python che modelli un semplice
-# gestionale aziendale. Dovremo prvedere la possibilità di
-# definire entità che modellano i prodotti, i clienti,
-# offrire interfacce per calcolare i prezzi, eventualmente
-# scontati, ...
+from gestionale.vendite.ordini import Ordine, RigaOrdine, OrdineConSconto
+from gestionale.core.prodotti import Prodotto, crea_prodotto_standard, ProdottoRecord
+from gestionale.core.clienti import Cliente, ClienteRecord
 
-class Prodotto:
-    aliquota_iva = 0.22 #variabile di classe -- ovvero è la stessa per tutte le istanze che verranno create.
+print("=======================================================")
 
     def __init__(self, name: str, price: float, quantity: int, supplier = None):
         self.name = name
@@ -16,19 +13,21 @@ class Prodotto:
 
     def valore_netto(self):
         return self._price*self.quantity
+p1 = Prodotto("Ebook Reader", 120.0, 1, "AAA")
+p2 = crea_prodotto_standard("Tablet", 750)
 
-    def valore_lordo(self):
-        netto = self.valore_netto()
-        lordo = netto*(1+self.aliquota_iva)
-        return lordo
+print (p1)
+print (p2)
+print("=======================================================")
 
-    @classmethod
-    def costruttore_con_quantità_uno(cls, name: str, price: float, supplier: str):
-        cls(name, price, 1, supplier)
+c1 = Cliente("Mario Rossi", "mail@mail.com", "Gold")
 
-    @staticmethod
-    def applica_sconto(prezzo, percentuale):
-        return prezzo*(1-percentuale)
+cliente1 = ClienteRecord("Mario Rossi", "mariorossi@example.com", "Gold")
+p1 = ProdottoRecord("Laptop", 1200.0)
+p2 = ProdottoRecord("Mouse", 20)
+
+ordine = Ordine([RigaOrdine(p1,2), RigaOrdine(p2, 10)], cliente1)
+ordine_scontato = OrdineConSconto([RigaOrdine(p1,2), RigaOrdine(p2, 10)], cliente1, 0.1)
 
     @property
     def price(self):    #equivalente al getter
@@ -42,12 +41,16 @@ class Prodotto:
         self._price = value
 
 myproduct1 = Prodotto(name = "Laptop", price = 1200.0, quantity=12, supplier="ABC")
+print(ordine)
+print("Numero di righe nell'ordine: ", ordine.numero_righe())
+print("Totale netto: ", ordine.totale_netto())
+print("Totale lordo (IVA 22%): ", ordine.totale_lordo(0.22))
 
-print(f"Nome prodotto: {myproduct1.name} - prezzo: {myproduct1.price}")
+print(ordine_scontato)
+print("Totale netto sconto: ", ordine_scontato.totale_netto())
+print("Totale lordo scontato: ", ordine_scontato.totale_lordo(0.22))
 
-print(f"Il totale lordo di myproduct1 è {myproduct1.valore_lordo()}") #uso un metodo di istanza
-p3 = Prodotto.costruttore_con_quantità_uno("Auricolari", 200.0, "ABC") #Modo per chiamare un metodo di classe.
-print(f"Prezzo scontato di myproduct1 {Prodotto.applica_sconto(myproduct1.price, 0.15)}")#Modo per chiamare un metodo statico.
+print("-------------------------------------------------------------------")
 
 myproduct2 = Prodotto("Mouse", 10, 25, "CDE")
 print(f"Nome prodotto: {myproduct2.name} - prezzo: {myproduct2.price}")
@@ -87,3 +90,6 @@ class Cliente:
 
 c1 = Cliente("Mario Bianchi", "mario.bianchi@polito.it", "Gold")
 print(c1.descrizione())
+#Nel package gestionale, scriviamo un modulo fatture.py che contenga:
+# - una classe Fattura che contiene un Ordine, un numero_fattura e una data
+# - un metodo genera_fattura() che restituisce una stringa formattata con tutte le info della fattura
